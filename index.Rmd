@@ -1,11 +1,15 @@
 ---
-title: "DDS Unit 12 Website"
+title: "Website"
 author: "Halle"
 date: "3/23/2021"
 output: html_document
 ---
 
-# Header 1
-## Header 2
-### Heder 3
-Text
+# Halle Purdom
+
+! [Alt text] (/Users/hallepurdom/RStudio Projects/DDS R code/Unit 12 Website/hallepurdom.github.io/PictureHP.jpeg)
+
+### I'm from Houston, Texas. I work for Filmmaking Lab Studios and graduated from Brown University in May 2020. I enjoy dancing, playing music, and crocheting and I have 2 cats named Dmitri and Freya. 
+
+“The other tabs represent work / analyses that I have completed.  Please check them out!”
+
