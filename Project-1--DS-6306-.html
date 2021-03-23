@@ -283,7 +283,7 @@ $(document).ready(function () {
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">Home</a>
+  <a href="index.html">About Me</a>
 </li>
 <li>
   <a href="Project-1--DS-6306-.html">Case Study 1</a>
@@ -312,65 +312,16 @@ $(document).ready(function () {
 <pre class="r"><code>library(ggplot2)
 library(naniar)
 library(tidyr)
-library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ───────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
-<pre><code>## ✓ tibble  3.0.6     ✓ dplyr   1.0.3
-## ✓ readr   1.4.0     ✓ stringr 1.4.0
-## ✓ purrr   0.3.4     ✓ forcats 0.5.0</code></pre>
-<pre><code>## ── Conflicts ──────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(plyr)</code></pre>
-<pre><code>## ------------------------------------------------------------------------------------------------------------</code></pre>
-<pre><code>## You have loaded plyr after dplyr - this is likely to cause problems.
-## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
-## library(plyr); library(dplyr)</code></pre>
-<pre><code>## ------------------------------------------------------------------------------------------------------------</code></pre>
-<pre><code>## 
-## Attaching package: &#39;plyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
-## 
-##     arrange, count, desc, failwith, id, mutate, rename, summarise, summarize</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     compact</code></pre>
-<pre class="r"><code>library(GGally)</code></pre>
-<pre><code>## Registered S3 method overwritten by &#39;GGally&#39;:
-##   method from   
-##   +.gg   ggplot2</code></pre>
-<pre class="r"><code>library(ggthemes)
+library(tidyverse)
+library(plyr)
+library(GGally)
+library(ggthemes)
 library(dplyr)
-library(caret)</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## 
-## Attaching package: &#39;caret&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     lift</code></pre>
-<pre class="r"><code>library(class)
+library(caret)
+library(class)
 library(e1071)
-library(tm)</code></pre>
-<pre><code>## Loading required package: NLP</code></pre>
-<pre><code>## 
-## Attaching package: &#39;NLP&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
-## 
-##     annotate</code></pre>
-<pre class="r"><code>library(plotly)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;plotly&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:plyr&#39;:
-## 
-##     arrange, mutate, rename, summarise</code></pre>
-<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
-## 
-##     last_plot</code></pre>
-<pre><code>## The following object is masked from &#39;package:stats&#39;:
-## 
-##     filter</code></pre>
-<pre><code>## The following object is masked from &#39;package:graphics&#39;:
-## 
-##     layout</code></pre>
+library(tm)
+library(plotly)</code></pre>
 <p>#Data Import and Manipulation Importing the Beer and Brewery data supplied.</p>
 <pre class="r"><code>Breweries&lt;- read.csv(file = &quot;/Users/hallepurdom/RStudio Projects/MSDS_6306_Doing-Data-Science/Unit 8 and 9 Case Study 1/Breweries.csv&quot;, header= TRUE)
 Beers&lt;- read.csv(file = &quot;/Users/hallepurdom/RStudio Projects/MSDS_6306_Doing-Data-Science/Unit 8 and 9 Case Study 1/Beers.csv&quot;, header= TRUE)</code></pre>
@@ -706,34 +657,34 @@ classifications = knn(train[,c(4,5)],test[,c(4,5)],train$IorA, prob = TRUE, k = 
 table(classifications,test$IorA)</code></pre>
 <pre><code>##                
 ## classifications Ale IPA
-##             Ale 147  24
-##             IPA  24  88</code></pre>
+##             Ale 141  28
+##             IPA  18  96</code></pre>
 <pre class="r"><code>CM = confusionMatrix(table(classifications,test$IorA))
 CM</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##                
 ## classifications Ale IPA
-##             Ale 147  24
-##             IPA  24  88
+##             Ale 141  28
+##             IPA  18  96
 ##                                           
-##                Accuracy : 0.8304          
-##                  95% CI : (0.7815, 0.8722)
-##     No Information Rate : 0.6042          
+##                Accuracy : 0.8375          
+##                  95% CI : (0.7892, 0.8785)
+##     No Information Rate : 0.5618          
 ##     P-Value [Acc &gt; NIR] : &lt;2e-16          
 ##                                           
-##                   Kappa : 0.6454          
+##                   Kappa : 0.6669          
 ##                                           
-##  Mcnemar&#39;s Test P-Value : 1               
+##  Mcnemar&#39;s Test P-Value : 0.1845          
 ##                                           
-##             Sensitivity : 0.8596          
-##             Specificity : 0.7857          
-##          Pos Pred Value : 0.8596          
-##          Neg Pred Value : 0.7857          
-##              Prevalence : 0.6042          
-##          Detection Rate : 0.5194          
-##    Detection Prevalence : 0.6042          
-##       Balanced Accuracy : 0.8227          
+##             Sensitivity : 0.8868          
+##             Specificity : 0.7742          
+##          Pos Pred Value : 0.8343          
+##          Neg Pred Value : 0.8421          
+##              Prevalence : 0.5618          
+##          Detection Rate : 0.4982          
+##    Detection Prevalence : 0.5972          
+##       Balanced Accuracy : 0.8305          
 ##                                           
 ##        &#39;Positive&#39; Class : Ale             
 ## </code></pre>
