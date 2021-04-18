@@ -1,0 +1,183 @@
+---
+title: "HallePurdom_CaseStudy2"
+author: "Halle Purdom"
+date: "4/17/2021"
+output: html_document
+---
+
+#Introduction: 
+#In this work, employee data from DDSAnalytics will be analyzed to answer 2 questions of interest. First, three top factors will be identified that best predict turnover (attrition) in an employee. K-nearest neighbors classification method will be used for this section- Naive Bayes classification method was tested but unable to reach the 60% specificity and sensitivity requirement. The model built from this will be used to predict a test set of data where the attrition is not given to test it's effectiveness. Second, a linear regression model will be created that predicts salary (monthly income) of employees. This prediction model should minimize RMSE and will be tested by predicting a given test set that has salary removed from the data. 
+
+#Website: https://hallepurdom.github.io/
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#loading necessary libraries
+library(naniar)
+library(class)
+library(olsrr)
+library(cowplot)
+library(ggplot2)
+library(IDPmisc)
+library(e1071)
+library(caret)
+library(GGally)
+library(dplyr)
+library(ggiraphExtra)
+library("readxl")
+
+#DATASET RAW
+cs2 = read.csv("/Users/hallepurdom/RStudio Projects/MSDS_6306_Doing-Data-Science/Unit 14 and 15 Case Study 2/CaseStudy2-data.csv", header=TRUE)
+
+head(cs2)
+
+#STANDARDIZATION FOR KNN
+cs2Stan<- cs2
+for(i in 1:ncol(cs2Stan)) {      
+  if(class(cs2Stan[,i]) == "integer"){
+    cat("cs2Stan$",colnames(cs2Stan)[i],"= scale(cs2Stan$",sep="", colnames(cs2Stan)[i],")\n")
+  }
+}
+#cs2Stan$ID= scale(cs2Stan$ID)
+cs2Stan$Age= scale(cs2Stan$Age)
+cs2Stan$DailyRate= scale(cs2Stan$DailyRate)
+cs2Stan$DistanceFromHome= scale(cs2Stan$DistanceFromHome)
+cs2Stan$Education= scale(cs2Stan$Education)
+cs2Stan$EmployeeCount= scale(cs2Stan$EmployeeCount)
+cs2Stan$EmployeeNumber= scale(cs2Stan$EmployeeNumber)
+cs2Stan$EnvironmentSatisfaction= scale(cs2Stan$EnvironmentSatisfaction)
+cs2Stan$HourlyRate= scale(cs2Stan$HourlyRate)
+cs2Stan$JobInvolvement= scale(cs2Stan$JobInvolvement)
+cs2Stan$JobLevel= scale(cs2Stan$JobLevel)
+cs2Stan$JobSatisfaction= scale(cs2Stan$JobSatisfaction)
+cs2Stan$MonthlyIncome= scale(cs2Stan$MonthlyIncome)
+cs2Stan$MonthlyRate= scale(cs2Stan$MonthlyRate)
+cs2Stan$NumCompaniesWorked= scale(cs2Stan$NumCompaniesWorked)
+cs2Stan$PercentSalaryHike= scale(cs2Stan$PercentSalaryHike)
+cs2Stan$PerformanceRating= scale(cs2Stan$PerformanceRating)
+cs2Stan$RelationshipSatisfaction= scale(cs2Stan$RelationshipSatisfaction)
+cs2Stan$StandardHours= scale(cs2Stan$StandardHours)
+cs2Stan$StockOptionLevel= scale(cs2Stan$StockOptionLevel)
+cs2Stan$TotalWorkingYears= scale(cs2Stan$TotalWorkingYears)
+cs2Stan$TrainingTimesLastYear= scale(cs2Stan$TrainingTimesLastYear)
+cs2Stan$WorkLifeBalance= scale(cs2Stan$WorkLifeBalance)
+cs2Stan$YearsAtCompany= scale(cs2Stan$YearsAtCompany)
+cs2Stan$YearsInCurrentRole= scale(cs2Stan$YearsInCurrentRole)
+cs2Stan$YearsSinceLastPromotion= scale(cs2Stan$YearsSinceLastPromotion)
+cs2Stan$YearsWithCurrManager= scale(cs2Stan$YearsWithCurrManager)
+
+#ONLY NUMERIC FOR LIN REG
+for(i in 1:ncol(cs2)) {      
+  if(class(cs2[,i]) == "integer"){
+    cat("'",colnames(cs2)[i],"'","= cs2$",sep="", colnames(cs2)[i],",")
+  }
+}
+cs2Num <- data.frame('Age'= cs2$Age,'DailyRate'= cs2$DailyRate,'DistanceFromHome'= cs2$DistanceFromHome,'Education'= cs2$Education,'EmployeeCount'= cs2$EmployeeCount,'EmployeeNumber'= cs2$EmployeeNumber,'EnvironmentSatisfaction'= cs2$EnvironmentSatisfaction,'HourlyRate'= cs2$HourlyRate,'JobInvolvement'= cs2$JobInvolvement,'JobLevel'= cs2$JobLevel,'JobSatisfaction'= cs2$JobSatisfaction,'MonthlyIncome'= cs2$MonthlyIncome,'MonthlyRate'= cs2$MonthlyRate,'NumCompaniesWorked'= cs2$NumCompaniesWorked,'PercentSalaryHike'= cs2$PercentSalaryHike,'PerformanceRating'= cs2$PerformanceRating,'RelationshipSatisfaction'= cs2$RelationshipSatisfaction,'StandardHours'= cs2$StandardHours,'StockOptionLevel'= cs2$StockOptionLevel,'TotalWorkingYears'= cs2$TotalWorkingYears,'TrainingTimesLastYear'= cs2$TrainingTimesLastYear,'WorkLifeBalance'= cs2$WorkLifeBalance,'YearsAtCompany'= cs2$YearsAtCompany,'YearsInCurrentRole'= cs2$YearsInCurrentRole,'YearsSinceLastPromotion'= cs2$YearsSinceLastPromotion,'YearsWithCurrManager'= cs2$YearsWithCurrManager)
+```
+
+
+
+#knn final model: Age, Monthly Income, and Years with Current Manager
+```{r}
+#finding best k
+set.seed(1)
+iterations = 10 #usually 100, minimized to run faster with knit
+numks = 100
+
+masterAcc = matrix(nrow = iterations, ncol = numks)
+masterSpec = matrix(nrow = iterations, ncol = numks)
+masterSen = matrix(nrow = iterations, ncol = numks)
+
+for(j in 1:iterations)
+{
+  for(i in 1:numks)
+  {
+    CM = confusionMatrix(table(cs2Stan[,3],knn.cv(cs2Stan[,c(20,36,2)],cs2Stan[,3],k = i)))
+    
+    masterAcc[j,i] = CM$overall[1]
+    masterSpec[j,i] = CM$byClass[2]
+    masterSen[j,i] = CM$byClass[1]
+  }
+}
+
+MeanAcc = colMeans(masterAcc)
+MeanSpec = colMeans(masterSpec)
+MeanSen = colMeans(masterSen)
+
+plot(seq(1,numks,1),MeanAcc, type = "l")
+plot(seq(1,numks,1),MeanSpec, type = "l")
+plot(seq(1,numks,1),MeanSen, type = "l")
+
+which.max(MeanAcc)
+which.max(MeanSpec)
+which.max(MeanSen)
+
+#Using 45-nn model
+CM = confusionMatrix(table(cs2Stan[,3],knn.cv(cs2Stan[,c(20,36,2)],cs2Stan[,3],k = 45)))
+CM$overall[1] #Accuracy
+CM$byClass[1] #Sensitivity
+CM$byClass[2] #Specificity
+CM
+
+```
+#knn 3D visualizations
+```{r}
+#3D plot of variables in KNN model Visualization
+library(ggthemes)
+library(plotly)
+
+p <- plot_ly(cs2, x = ~Age, y = ~MonthlyIncome, z = ~YearsWithCurrManager, color = ~Attrition) %>%
+   add_markers(alpha = 0.8, marker = list(size = 7)) %>%
+   layout(scene = list(xaxis = list(title = 'Age'),
+                      yaxis = list(title = 'MonthlyIncome'),
+                      zaxis = list(title = 'YearsWithCurrManager')))
+p
+
+
+```
+
+
+#MULTIPLE LINEAR REGRESSION
+```{r}
+#model
+fit1 = lm(MonthlyIncome~JobLevel+TotalWorkingYears+YearsWithCurrManager, data=cs2Num)
+fit1
+summary(fit1)
+confint(fit1)
+sqrt(mean(fit1$residuals^2)) #RMSE
+
+#dataframe with only four variables in model for visualization
+cs2_mlr <- data.frame("MonthlyIncome"=cs2Num$MonthlyIncome, "JobLevel"=cs2Num$JobLevel, "TotalWorkingYears"=cs2Num$TotalWorkingYears, "YearsWithCurrManager"=cs2Num$YearsWithCurrManager)
+str(cs2Num)
+pairs(cs2_mlr[,1:4],lower.panel=NULL) #visualization
+
+```
+#Predicting Attrition and Monthly Income csv submissions
+```{r}
+#Case2PredictionsXXXX Attrition.csv
+noA = read.csv("/Users/hallepurdom/RStudio Projects/MSDS_6306_Doing-Data-Science/Unit 14 and 15 Case Study 2/CaseStudy2CompSet No Attrition.csv",header=TRUE)
+head(noA)
+DFnoA = data.frame(scale(noA$Age), scale(noA$MonthlyIncome),scale(noA$YearsWithCurrManager))
+
+classifications = knn(cs2Stan[,c(2,20,36)],DFnoA[,c(1,2,3)],cs2Stan$Attrition, k = 45,prob = TRUE)
+
+Attrition = data.frame("ID" = noA$ID, "Attrition"=classifications)
+write.csv(Attrition, "/Users/hallepurdom/Desktop/Case2PredictionsPurdom Attrition.csv", row.names=FALSE)
+
+#Case2PredictionsXXXX Salary.csv
+noSal = read_excel("/Users/hallepurdom/RStudio Projects/MSDS_6306_Doing-Data-Science/Unit 14 and 15 Case Study 2/CaseStudy2CompSet No Salary.xlsx")
+head(noSal)
+noSal <- as.data.frame(noSal)
+
+DFnoSal = data.frame("JobLevel"=noSal$JobLevel,"TotalWorkingYears"=noSal$TotalWorkingYears,"YearsWithCurrManager"=noSal$YearsWithCurrManager)
+predictions = predict(fit1, newdata = DFnoSal)
+
+Salary = data.frame("ID" = noSal$ID, "MonthlyIncome"=predictions)
+write.csv(Salary, "/Users/hallepurdom/Desktop/Case2PredictionsPurdom Salary.csv", row.names=FALSE)
+
+```
+#Conclusion
+#In conclusion, the 45-nn model built to classify attrition works with 84% accuracy and sensitivity, and 75% specificity based on internal cross validation techniques. This model uses age, monthly income, and years with current manager to predict attrition. The multiple linear regression model used to predict salary has an RMSE of $1374.498 and uses the variables job level, total working years, and years with current manager. 
