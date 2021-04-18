@@ -9,6 +9,7 @@ output: html_document
 #In this work, employee data from DDSAnalytics will be analyzed to answer 2 questions of interest. First, three top factors will be identified that best predict turnover (attrition) in an employee. K-nearest neighbors classification method will be used for this section- Naive Bayes classification method was tested but unable to reach the 60% specificity and sensitivity requirement. The model built from this will be used to predict a test set of data where the attrition is not given to test it's effectiveness. Second, a linear regression model will be created that predicts salary (monthly income) of employees. This prediction model should minimize RMSE and will be tested by predicting a given test set that has salary removed from the data. 
 
 #Website: https://hallepurdom.github.io/
+#Presentation: https://youtu.be/nQwzh4BQkX4
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
